@@ -40,6 +40,9 @@ assert.match(indexSource, /garden-shop-bar/, 'garden should have a horizontal bo
 assert.match(gardenSource, /requestAnimationFrame/, 'garden renderer should run a RAF game loop');
 assert.match(gardenSource, /velocityX/, 'camera should implement inertia');
 assert.match(gardenSource, /painter/i, 'renderer should document painter algorithm');
+assert.match(gardenSource, /zoom|scale/i, 'camera should keep a zoom/scale state');
+assert.match(gardenSource, /addEventListener\('wheel'/, 'desktop should support ctrl+wheel / trackpad zoom');
+assert.match(gardenSource, /pinch|touches|pointerCache|distance/i, 'mobile should support pinch-to-zoom gestures');
 
 const user = { coins: 10000, inventory: { tree: 1 }, garden, stats:{} };
 const tile = garden.tiles.find(t => t.type !== 'water' && !context.window.Garden.isOccupied(garden, t.x, t.y));

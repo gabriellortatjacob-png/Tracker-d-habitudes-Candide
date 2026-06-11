@@ -60,18 +60,19 @@ window.Garden = (() => {
     return garden;
   }
   function getView(canvas) {
-    if (!views.has(canvas)) views.set(canvas, { offsetX:0, offsetY:-120, velocityX:0, velocityY:0, hover:null, dragging:false, moved:false, lastX:0, lastY:0, lastT:0, selectedPulse:0, selectedAction:null });
+    if (!views.has(canvas)) views.set(canvas, { offsetX:0, offsetY:-120, velocityX:0, velocityY:0, zoom:1, hover:null, dragging:false, moved:false, lastX:0, lastY:0, lastT:0, selectedPulse:0, selectedAction:null, pointerCache:new Map(), pinchDistance:0, pinchZoom:1 });
     return views.get(canvas);
   }
   function logicalSize(canvas) {
     const rect = canvas.getBoundingClientRect?.() || {width:canvas.width || 1000, height:canvas.height || 620};
     return { w:Math.max(320, Math.round(rect.width || Number(canvas.getAttribute?.('width')) || 1000)), h:Math.max(280, Math.round(rect.height || Number(canvas.getAttribute?.('height')) || 620)) };
   }
-  function iso(x,y,originX,originY,camera){ return { x: originX + camera.offsetX + (x-y)*tileW/2, y: originY + camera.offsetY + (x+y)*tileH/2 }; }
+  function iso(x,y,originX,originY,camera){ const z=camera.zoom || 1; return { x: originX + camera.offsetX + (x-y)*tileW/2*z, y: originY + camera.offsetY + (x+y)*tileH/2*z }; }
   function clampCamera(canvas, garden){
     const view = getView(canvas), {w,h} = logicalSize(canvas);
-    const minX = -garden.width * tileW / 2, maxX = garden.width * tileW / 2;
-    const minY = -garden.height * tileH / 2 - 120, maxY = h * .22;
+    const z = view.zoom || 1;
+    const minX = -garden.width * tileW / 2 * z, maxX = garden.width * tileW / 2 * z;
+    const minY = -garden.height * tileH / 2 * z - 120, maxY = h * .22;
     view.offsetX = Math.max(minX, Math.min(maxX, view.offsetX));
     view.offsetY = Math.max(minY, Math.min(maxY, view.offsetY));
   }
@@ -104,9 +105,10 @@ window.Garden = (() => {
 
     garden.tiles.sort((a,b)=>(a.x+a.y)-(b.x+b.y)).forEach(t => {
       const p = iso(t.x,t.y,originX,originY,camera);
-      if(p.x < -tileW || p.x > w + tileW || p.y < -80 || p.y > h + 120) return;
+      const z = camera.zoom || 1;
+      if(p.x < -tileW*z || p.x > w + tileW*z || p.y < -80*z || p.y > h + 120*z) return;
       const key = t.type === 'water' ? waterKey : tileSprite[t.type] || 'tile_grass_base';
-      drawSprite(ctx,key,p.x,p.y+28,110,96);
+      drawSprite(ctx,key,p.x,p.y+28*z,110*z,96*z);
       const occupied = isOccupied(garden,t.x,t.y) || t.type === 'water';
       drawPlacementOverlay(ctx,p,!occupied, placement && hover && hover.x===t.x && hover.y===t.y);
       if(selected && selected.x===t.x && selected.y===t.y){ ctx.save(); ctx.lineWidth=3; ctx.strokeStyle='#fff86b'; diamondPath(ctx,p.x,p.y); ctx.stroke(); ctx.restore(); }
@@ -119,18 +121,19 @@ window.Garden = (() => {
     ].sort((a,b)=>(a.x+a.y)-(b.x+b.y) || a.y-b.y);
     drawables.forEach(o => {
       const p = iso(o.x,o.y,originX,originY,camera);
-      if(p.x < -140 || p.x > w+140 || p.y < -190 || p.y > h+170) return;
+      const z = camera.zoom || 1;
+      if(p.x < -140*z || p.x > w+140*z || p.y < -190*z || p.y > h+170*z) return;
       let bob = 0;
       if(o.kind === 'item' && ['tree','bush','flowers'].includes(o.itemId)) bob = Math.sin(timestamp/480 + o.x*.8 + o.y*.37) * 2;
       if(o.kind === 'obstacle' && String(o.type).startsWith('weed')) bob = Math.sin(timestamp/160 + o.x*7) * 1;
       if(o.kind === 'item'){
         const age = Math.min(1, (Date.now() - (o.placedAt || 0))/300);
         const scale = age < 1 ? easeOutBack(age) : 1;
-        drawIsoShadow(ctx,p.x,p.y,30,10);
-        ctx.save(); ctx.translate(p.x,p.y); ctx.scale(scale,scale); ctx.translate(-p.x,-p.y); drawSprite(ctx,spriteForItem(o),p.x,p.y+bob,124,124); ctx.restore();
+        drawIsoShadow(ctx,p.x,p.y,30*z,10*z);
+        ctx.save(); ctx.translate(p.x,p.y); ctx.scale(scale,scale); ctx.translate(-p.x,-p.y); drawSprite(ctx,spriteForItem(o),p.x,p.y+bob*z,124*z,124*z); ctx.restore();
       } else {
         const shake = o.removing ? Math.sin(timestamp/25)*3 : 0;
-        drawIsoShadow(ctx,p.x,p.y,26,9); drawSprite(ctx,obstacleSprites[o.type] || 'weed_1',p.x+shake,p.y+bob,112,112);
+        drawIsoShadow(ctx,p.x,p.y,26*z,9*z); drawSprite(ctx,obstacleSprites[o.type] || 'weed_1',p.x+shake*z,p.y+bob*z,112*z,112*z);
       }
     });
     renderEffects(ctx,garden.effects || [], originX, originY, camera, timestamp);
@@ -161,17 +164,39 @@ window.Garden = (() => {
     garden.tiles.forEach(t=>{ const p=iso(t.x,t.y,originX,originY,c); const d=Math.abs(px-p.x)/(tileW/2)+Math.abs(py-p.y)/(tileH/2); if(d<1 && d<dist){best=t;dist=d;} });
     return best;
   }
+  function clampZoom(value){ return Math.max(.55, Math.min(2.4, value)); }
+  function setZoomAround(canvas, garden, nextZoom, clientX, clientY){
+    const view = getView(canvas), rect = canvas.getBoundingClientRect(), {w,h}=logicalSize(canvas);
+    const px=(clientX-rect.left)*w/rect.width, py=(clientY-rect.top)*h/rect.height;
+    const oldZoom = view.zoom || 1, newZoom = clampZoom(nextZoom);
+    if(Math.abs(newZoom-oldZoom) < .001) return;
+    const originX = w/2, originY = 88;
+    // Keep the map point under the fingers / wheel cursor stable while zooming.
+    view.offsetX = px - originX - ((px - originX - view.offsetX) * newZoom / oldZoom);
+    view.offsetY = py - originY - ((py - originY - view.offsetY) * newZoom / oldZoom);
+    view.zoom = newZoom; view.velocityX = 0; view.velocityY = 0;
+    clampCamera(canvas, garden);
+  }
+  function pointerDistance(a,b){ return Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY); }
+  function midpoint(a,b){ return { clientX:(a.clientX+b.clientX)/2, clientY:(a.clientY+b.clientY)/2 }; }
   function attach(canvas,getGarden,callbacks){
     const view=getView(canvas); const redraw=()=>callbacks.onRedraw?.();
-    canvas.addEventListener('pointerdown', e=>{ view.dragging=true; view.moved=false; view.lastX=e.clientX; view.lastY=e.clientY; view.lastT=performance.now(); view.velocityX=0; view.velocityY=0; canvas.setPointerCapture?.(e.pointerId); });
+    canvas.addEventListener('wheel', e=>{ const g=getGarden(); if(!g || !(e.ctrlKey || e.metaKey)) return; e.preventDefault(); const factor = Math.exp(-e.deltaY * .0025); setZoomAround(canvas,g,(view.zoom || 1)*factor,e.clientX,e.clientY); redraw(); }, {passive:false});
+    canvas.addEventListener('pointerdown', e=>{ view.pointerCache.set(e.pointerId, {clientX:e.clientX, clientY:e.clientY}); view.dragging=true; view.moved=false; view.lastX=e.clientX; view.lastY=e.clientY; view.lastT=performance.now(); view.velocityX=0; view.velocityY=0; if(view.pointerCache.size===2){ const pts=[...view.pointerCache.values()]; view.pinchDistance=pointerDistance(pts[0],pts[1]); view.pinchZoom=view.zoom || 1; } canvas.setPointerCapture?.(e.pointerId); });
     canvas.addEventListener('pointermove', e=>{
       const g=getGarden(); if(!g) return;
+      if(view.pointerCache.has(e.pointerId)) view.pointerCache.set(e.pointerId, {clientX:e.clientX, clientY:e.clientY});
+      if(view.pointerCache.size>=2){
+        const pts=[...view.pointerCache.values()].slice(0,2), dist=pointerDistance(pts[0],pts[1]);
+        if(view.pinchDistance>0){ const mid=midpoint(pts[0],pts[1]); setZoomAround(canvas,g,view.pinchZoom * (dist/view.pinchDistance),mid.clientX,mid.clientY); view.moved=true; redraw(); }
+        return;
+      }
       if(view.dragging){ const now=performance.now(), dt=Math.max(16,now-view.lastT), dx=e.clientX-view.lastX, dy=e.clientY-view.lastY; if(Math.abs(dx)+Math.abs(dy)>2) view.moved=true; view.offsetX+=dx; view.offsetY+=dy; view.velocityX=dx/(dt/16); view.velocityY=dy/(dt/16); view.lastX=e.clientX; view.lastY=e.clientY; view.lastT=now; clampCamera(canvas,g); redraw(); return; }
       view.hover=tileFromPoint(canvas,g,e.clientX,e.clientY); canvas.style.cursor=view.hover?'pointer':'grab'; redraw();
     });
-    const end=e=>{ const g=getGarden(); if(view.dragging && g && !view.moved) callbacks.onTileClick?.(tileFromPoint(canvas,g,e.clientX,e.clientY)); view.dragging=false; redraw(); };
-    canvas.addEventListener('pointerup',end); canvas.addEventListener('pointercancel',()=>{view.dragging=false;});
-    canvas.addEventListener('mouseleave',()=>{view.hover=null; view.dragging=false; redraw();});
+    const end=e=>{ const g=getGarden(); const wasPinching=view.pointerCache.size>=2; view.pointerCache.delete(e.pointerId); view.pinchDistance=0; if(view.dragging && g && !view.moved && !wasPinching) callbacks.onTileClick?.(tileFromPoint(canvas,g,e.clientX,e.clientY)); view.dragging=false; redraw(); };
+    canvas.addEventListener('pointerup',end); canvas.addEventListener('pointercancel',e=>{view.pointerCache.delete(e.pointerId); view.dragging=false; view.pinchDistance=0;});
+    canvas.addEventListener('mouseleave',()=>{view.hover=null; view.dragging=false; view.pointerCache.clear(); view.pinchDistance=0; redraw();});
     canvas.addEventListener('touchmove', e=>e.preventDefault(), {passive:false});
   }
   function isOccupied(g,x,y){ return tileType(x,y)==='water' || (g.items||[]).some(i=>i.x===x&&i.y===y) || (g.obstacles||[]).some(o=>o.x===x&&o.y===y); }
@@ -179,5 +204,5 @@ window.Garden = (() => {
   function clean(user,tile){ if(!tile) return 'Choisis une tuile encombrée.'; const idx=user.garden.obstacles.findIndex(o=>o.x===tile.x&&o.y===tile.y); if(idx<0) return 'Cette tuile est déjà propre.'; if(user.coins<15) return 'Il faut 15 pièces pour nettoyer cette parcelle.'; user.coins-=15; const [removed]=user.garden.obstacles.splice(idx,1); user.garden.effects.push({type:'clean',x:removed.x,y:removed.y,started:Date.now(),duration:360}); return 'Obstacle nettoyé : poussière et place fraîche.'; }
   function upgradeItem(user,item){ const def=shopApi().getItem(item?.itemId); if(!def) return 'Objet introuvable.'; item.level ||= 1; const cost=def.upgrade?.[item.level-1]; if(!cost) return 'Cet objet est déjà au niveau maximum.'; if(user.coins<cost) return `Il manque ${cost-user.coins} pièces pour améliorer.`; user.coins-=cost; item.level++; user.garden.effects.push({type:'place',x:item.x,y:item.y,started:Date.now(),duration:420}); return `${def.name} amélioré au niveau ${item.level}.`; }
   function easeOutBack(t){ const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(t-1,3) + c1*Math.pow(t-1,2); }
-  return { createGarden, upgradeGarden, render, attach, place, clean, upgradeItem, isOccupied, itemAt, obstacleAt };
+  return { createGarden, upgradeGarden, render, attach, place, clean, upgradeItem, isOccupied, itemAt, obstacleAt, setZoomAround };
 })();
