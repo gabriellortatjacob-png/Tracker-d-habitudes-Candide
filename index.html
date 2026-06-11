@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cultivons notre jardin</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/garden.css" />
+</head>
+<body>
+  <div class="sun"></div>
+  <main class="shell">
+    <section id="auth-view" class="auth-card" data-view="auth">
+      <div class="brand-badge">🌱 Candide Habit Garden</div>
+      <h1>Il faut cultiver notre jardin.</h1>
+      <p class="lead">Transforme tes petites habitudes en un jardin isométrique vivant : chaque effort arrose une parcelle, chaque série fait fleurir le monde.</p>
+      <div class="auth-grid">
+        <form id="register-form" class="panel" autocomplete="off">
+          <h2>Créer mon jardin</h2>
+          <label>Pseudo unique<input id="register-pseudo" minlength="2" maxlength="18" required placeholder="ex: Candide" /></label>
+          <label>Code d'accès local<input id="register-code" minlength="3" required type="password" placeholder="Un petit code secret" /></label>
+          <button class="primary" type="submit">Planter la première graine</button>
+        </form>
+        <form id="login-form" class="panel" autocomplete="off">
+          <h2>Retrouver mon jardin</h2>
+          <label>Pseudo<input id="login-pseudo" required placeholder="Ton pseudo" /></label>
+          <label>Code d'accès<input id="login-code" required type="password" placeholder="Ton code" /></label>
+          <button class="secondary" type="submit">Rentrer au jardin</button>
+        </form>
+      </div>
+      <p id="auth-message" class="message" role="status"></p>
+    </section>
+
+    <section id="app-view" hidden>
+      <header class="topbar">
+        <button id="home-title" class="title-button" type="button">🌻 Notre jardin</button>
+        <div class="stats-pill"><span>🪙</span><strong id="coin-count">0</strong> pièces</div>
+        <div class="stats-pill"><span>✨</span>Niv. <strong id="level-count">1</strong></div>
+        <div class="stats-pill"><span>🔥</span><strong id="best-streak-count">0</strong> jours</div>
+        <button id="logout-btn" class="ghost" type="button">Sortir</button>
+      </header>
+
+      <nav class="tabs" aria-label="Navigation principale">
+        <button data-route="habits" class="active">🌿 Habitudes</button>
+        <button data-route="garden">🏡 Votre Jardin</button>
+        <button data-route="social">🤝 Voisins</button>
+      </nav>
+
+      <section id="habits-view" class="view active-view">
+        <div class="view-heading">
+          <div><h2>Tableau de bord des graines quotidiennes</h2><p>Chaque coche nourrit la terre et rapporte 10 pièces.</p></div>
+        </div>
+        <form id="habit-form" class="inline-form">
+          <input id="habit-title" required maxlength="40" placeholder="Nouvelle habitude : méditer, lire, marcher..." />
+          <button class="primary" type="submit">Ajouter une pousse</button>
+        </form>
+        <div id="habit-list" class="habit-list"></div>
+      </section>
+
+      <section id="garden-view" class="view">
+        <div class="view-heading">
+          <div><h2>Votre jardin isométrique</h2><p id="garden-help">Clique une tuile : place un achat ou nettoie les mauvaises herbes contre des pièces.</p></div>
+          <div id="selected-tile" class="selected-tile">Aucune tuile choisie</div>
+        </div>
+        <div class="garden-layout">
+          <div class="canvas-card">
+            <canvas id="garden-canvas" width="920" height="560" aria-label="Jardin isométrique interactif"></canvas>
+          </div>
+          <aside class="shop-panel">
+            <h3>🛒 Marché du village</h3>
+            <p class="tiny">Achète une décoration, puis clique une tuile libre.</p>
+            <div id="shop-list" class="shop-list"></div>
+            <h3>🎒 Inventaire</h3>
+            <div id="inventory-list" class="inventory-list"></div>
+            <button id="clean-obstacle-btn" class="secondary full" type="button">Nettoyer l'obstacle sélectionné — 15 🪙</button>
+          </aside>
+        </div>
+      </section>
+
+      <section id="social-view" class="view">
+        <div class="view-heading"><div><h2>Voisins jardiniers</h2><p>Visite, invite et encourage d'autres jardins locaux ou simulés.</p></div></div>
+        <form id="friend-search-form" class="inline-form">
+          <input id="friend-query" required placeholder="Chercher un pseudo : Pangloss, Martin..." />
+          <button class="primary" type="submit">Chercher</button>
+        </form>
+        <div id="social-message" class="message"></div>
+        <div class="social-grid">
+          <section class="panel"><h3>Résultats</h3><div id="search-results"></div></section>
+          <section class="panel"><h3>Demandes reçues</h3><div id="friend-requests"></div></section>
+          <section class="panel"><h3>Mes amis</h3><div id="friends-list"></div></section>
+        </div>
+        <section class="panel visit-panel"><h3 id="visit-title">Jardin visité</h3><canvas id="friend-canvas" width="740" height="420"></canvas></section>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/habits.js"></script>
+  <script src="js/shop.js"></script>
+  <script src="js/garden.js"></script>
+  <script src="js/social.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
