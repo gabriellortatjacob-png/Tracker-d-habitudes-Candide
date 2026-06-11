@@ -19,7 +19,7 @@ window.Shop = (() => {
     {id:'lamp', name:'Lampadaire', icon:'💡', price:70, category:'decor', desc:'Lumière chaude pour le soir.', levels:['lamp_n1','lamp_n2'], upgrade:[120]}
   ];
 
-  const spritePath = key => `assets/sprites/${key}.png`;
+  const spritePath = key => `assets/sprites/${key}.png?v=v3-buildings`;
   const getItem = id => catalog.find(i => i.id === id);
   const selectedClass = (selectedItem, id) => selectedItem === id ? ' selected' : '';
 

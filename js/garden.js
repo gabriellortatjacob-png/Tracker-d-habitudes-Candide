@@ -4,7 +4,7 @@ window.Garden = (() => {
   const views = new WeakMap();
   const activeCanvases = new WeakMap();
   const images = new Map();
-  const asset = key => `assets/sprites/${key}.png`;
+  const asset = key => `assets/sprites/${key}.png?v=v3-buildings`;
   const tileSprite = { grass_base:'tile_grass_base', grass_flower:'tile_grass_flower', grass_blades:'tile_grass_blades', path:'tile_path' };
   const waterFrames = ['tile_water_1','tile_water_2','tile_water_3'];
   const obstacleSprites = { rock_small:'rock_small', rock_big:'rock_big', weed_1:'weed_1', weed_2:'weed_2', stump:'stump' };
