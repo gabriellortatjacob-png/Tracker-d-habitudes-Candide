@@ -42,6 +42,7 @@
 
       <nav class="tabs" aria-label="Navigation principale">
         <button data-route="habits" class="active">🌿 Habitudes</button>
+        <button data-route="calendar">📅 Calendrier</button>
         <button data-route="garden">🏡 Votre Jardin</button>
         <button data-route="social">🤝 Voisins</button>
       </nav>
@@ -57,22 +58,37 @@
         <div id="habit-list" class="habit-list"></div>
       </section>
 
+      <section id="calendar-view" class="view">
+        <div class="view-heading calendar-heading">
+          <div><h2>Calendrier des soins</h2><p>Relis ton historique : chaque case verte est une parcelle entretenue.</p></div>
+          <div class="calendar-controls">
+            <button id="calendar-prev" class="ghost" type="button">← Précédent</button>
+            <div class="mode-toggle" role="tablist" aria-label="Mode calendrier">
+              <button id="calendar-week" type="button" class="active">Semaine</button>
+              <button id="calendar-month" type="button">Mois</button>
+            </div>
+            <button id="calendar-next" class="ghost" type="button">Suivant →</button>
+          </div>
+        </div>
+        <div id="calendar-content" class="calendar-content"></div>
+      </section>
+
       <section id="garden-view" class="view">
-        <div class="view-heading">
-          <div><h2>Votre jardin isométrique</h2><p id="garden-help">Clique une tuile : place un achat ou nettoie les mauvaises herbes contre des pièces.</p></div>
+        <div class="view-heading garden-heading">
+          <div><h2>Votre jardin isométrique</h2><p id="garden-help">Glisse pour déplacer la caméra. Clique une tuile pour planter ou nettoyer.</p></div>
           <div id="selected-tile" class="selected-tile">Aucune tuile choisie</div>
         </div>
         <div class="garden-layout">
           <div class="canvas-card">
-            <canvas id="garden-canvas" width="920" height="560" aria-label="Jardin isométrique interactif"></canvas>
+            <canvas id="garden-canvas" width="1100" height="720" aria-label="Jardin isométrique interactif"></canvas>
           </div>
           <aside class="shop-panel">
             <h3>🛒 Marché du village</h3>
-            <p class="tiny">Achète une décoration, puis clique une tuile libre.</p>
+            <p class="tiny">Cartes colorées, achat direct, puis sélection dans l’inventaire.</p>
             <div id="shop-list" class="shop-list"></div>
             <h3>🎒 Inventaire</h3>
             <div id="inventory-list" class="inventory-list"></div>
-            <button id="clean-obstacle-btn" class="secondary full" type="button">Nettoyer l'obstacle sélectionné — 15 🪙</button>
+            <button id="clean-obstacle-btn" class="secondary full action-clean" type="button">Nettoyer — 15 🪙</button>
           </aside>
         </div>
       </section>
@@ -96,6 +112,7 @@
 
   <script src="js/auth.js"></script>
   <script src="js/habits.js"></script>
+  <script src="js/calendar.js"></script>
   <script src="js/shop.js"></script>
   <script src="js/garden.js"></script>
   <script src="js/social.js"></script>
