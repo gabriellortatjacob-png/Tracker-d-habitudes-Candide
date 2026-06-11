@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cultivons notre jardin</title>
-  <link rel="stylesheet" href="css/main.css" />
-  <link rel="stylesheet" href="css/garden.css" />
+  <link rel="stylesheet" href="css/main.css?v=v3-art" />
+  <link rel="stylesheet" href="css/garden.css?v=v3-art" />
 </head>
 <body>
   <div class="sun"></div>
@@ -73,22 +73,21 @@
         <div id="calendar-content" class="calendar-content"></div>
       </section>
 
-      <section id="garden-view" class="view">
-        <div class="view-heading garden-heading">
-          <div><h2>Votre jardin isométrique</h2><p id="garden-help">Glisse pour déplacer la caméra. Clique une tuile pour planter ou nettoyer.</p></div>
-          <div id="selected-tile" class="selected-tile">Aucune tuile choisie</div>
-        </div>
+      <section id="garden-view" class="view garden-fullscreen">
         <div class="garden-layout">
           <div class="canvas-card">
             <canvas id="garden-canvas" width="1100" height="720" aria-label="Jardin isométrique interactif"></canvas>
+            <div class="garden-hud">
+              <div><strong>Votre jardin</strong><span id="garden-help">Glisse pour déplacer la caméra. Choisis un item puis touche une tuile libre.</span></div>
+              <div id="selected-tile" class="selected-tile">Aucune tuile choisie</div>
+            </div>
+            <button id="garden-shop-toggle" class="garden-shop-toggle" type="button">🛒 Boutique</button>
           </div>
-          <aside class="shop-panel">
-            <h3>🛒 Marché du village</h3>
-            <p class="tiny">Cartes colorées, achat direct, puis sélection dans l’inventaire.</p>
+          <aside id="garden-shop-bar" class="shop-panel garden-shop-bar" aria-label="Boutique du jardin">
+            <button id="garden-shop-close" class="shop-close" type="button">✕ Fermer</button>
             <div id="shop-list" class="shop-list"></div>
-            <h3>🎒 Inventaire</h3>
             <div id="inventory-list" class="inventory-list"></div>
-            <button id="clean-obstacle-btn" class="secondary full action-clean" type="button">Nettoyer — 15 🪙</button>
+            <button id="clean-obstacle-btn" class="secondary full action-clean" type="button" hidden>Nettoyer — 15 🪙</button>
           </aside>
         </div>
       </section>
@@ -110,12 +109,12 @@
     </section>
   </main>
 
-  <script src="js/auth.js?v=coins10000"></script>
-  <script src="js/habits.js?v=coins10000"></script>
-  <script src="js/calendar.js?v=coins10000"></script>
-  <script src="js/shop.js?v=coins10000"></script>
-  <script src="js/garden.js?v=coins10000"></script>
-  <script src="js/social.js?v=coins10000"></script>
-  <script src="js/app.js?v=coins10000"></script>
+  <script src="js/auth.js?v=v3-art"></script>
+  <script src="js/habits.js?v=v3-art"></script>
+  <script src="js/calendar.js?v=v3-art"></script>
+  <script src="js/shop.js?v=v3-art"></script>
+  <script src="js/garden.js?v=v3-art"></script>
+  <script src="js/social.js?v=v3-art"></script>
+  <script src="js/app.js?v=v3-art"></script>
 </body>
 </html>

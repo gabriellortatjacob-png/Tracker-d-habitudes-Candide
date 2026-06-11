@@ -41,7 +41,8 @@ const context = {
     upgradeGarden: (garden) => garden || { items: [], obstacles: [] },
     attach: () => {},
     render: () => {},
-    clean: () => ''
+    clean: () => '',
+    itemAt: () => null
   },
   Social: { ensureBots: () => {}, render: () => {}, search: () => [], rowPerson: () => ({ append: () => {} }) },
   Habits: { render: () => {} },
