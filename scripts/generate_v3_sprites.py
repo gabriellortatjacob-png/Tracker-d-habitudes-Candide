@@ -129,29 +129,92 @@ def flowers(level):
         img.ellipse(x,50-(i%2)*4,6,6,rgba(palettes[level-1][i%2]),rgba('#21451f'),1)
     return img
 
+def big_shadow(img): shadow(img,128,206,76,26)
+def roof_shape(img, pts, color): img.poly(pts, rgba(color), rgba('#45261f'), 4)
+def door_shape(img,x,y,w,h):
+    img.rect(x,y,w,h,rgba('#5b341f'),rgba('#24150e'))
+    img.ellipse(x+w-7,y+h/2,3,3,rgba('#ffd65a'))
+def window_shape(img,x,y,w,h):
+    img.rect(x,y,w,h,rgba('#8eeaff'),rgba('#24414a'))
+    img.line(x+w/2,y,x+w/2,y+h,rgba('#ffffff',210),2)
+    img.line(x,y+h/2,x+w,y+h/2,rgba('#ffffff',210),2)
+def base_building_tile(img, top='#79dc61'):
+    diamond(img,(128,126),(224,176),(128,226),(32,176),top,'#3d9346','#5fbd50','#21451f')
+
 def house(level):
-    img=Img(); shadow(img,65,96,42,15)
-    body=['#d88a42','#e5a34e','#f0b35e','#f4cc74'][level-1]; roof=['#b94c48','#d25a4d','#de704e','#7c6bf2'][level-1]
-    diamond(img,(64,53),(101,73),(64,96),(27,73),body,'#a96234','#ce7f43')
-    img.poly([(29,61),(64,34),(99,61),(64,48)],rgba(roof),rgba('#4a2a25'),2)
-    img.rect(58,73,12,20,rgba('#5d3a24'),rgba('#21451f'))
-    if level>=3: img.ellipse(42,82,7,9,rgba('#5bd560'),rgba('#21451f'),1); img.ellipse(86,80,7,9,rgba('#5bd560'),rgba('#21451f'),1)
-    if level>=4: img.ellipse(64,31,8,8,rgba('#8ff9ff',180),rgba('#ffffff',120),1)
+    # Four visibly different home silhouettes: cottage, mill-house, manor, treehouse.
+    img=Img(256,256); big_shadow(img)
+    if level == 1:
+        base_building_tile(img)
+        diamond(img,(128,108),(190,140),(128,184),(66,140),'#f4c56d','#b96f41','#dc9150','#3b241b')
+        roof_shape(img,[(58,128),(128,72),(198,128),(128,105)],'#d94b45')
+        img.rect(156,74,18,26,rgba('#7b3c2a'),rgba('#3b241b'))
+        img.poly([(154,70),(176,70),(181,82),(149,82)],rgba('#cf6a3f'),rgba('#3b241b'),3)
+        door_shape(img,116,146,24,38); window_shape(img,82,135,24,20); window_shape(img,154,137,24,20)
+        img.ellipse(72,176,16,22,rgba('#4ed35d'),rgba('#21451f'),2); img.ellipse(187,175,14,20,rgba('#ff7ab6'),rgba('#21451f'),2)
+    elif level == 2:
+        base_building_tile(img,'#70d95d')
+        diamond(img,(128,96),(188,132),(128,194),(68,132),'#fff0b4','#c8864c','#efb46d','#3b241b')
+        roof_shape(img,[(66,120),(128,62),(190,120),(128,92)],'#3b93e6')
+        img.rect(82,132,35,55,rgba('#f7d884'),rgba('#3b241b')); roof_shape(img,[(72,132),(100,103),(128,132),(100,118)],'#2d7fd2')
+        door_shape(img,134,148,26,38); window_shape(img,93,144,16,18); window_shape(img,166,137,22,20)
+        for x,y in [(62,182),(190,178)]: img.ellipse(x,y,12,20,rgba('#56d164'),rgba('#21451f'),2)
+    elif level == 3:
+        base_building_tile(img,'#7cdc65')
+        diamond(img,(128,92),(198,128),(128,202),(58,128),'#f7d28a','#b67a49','#e4a765','#3b241b')
+        roof_shape(img,[(54,116),(128,52),(202,116),(128,88)],'#7c62f0')
+        for x in [72,164]:
+            img.rect(x,105,28,78,rgba('#f2c979'),rgba('#3b241b'))
+            roof_shape(img,[(x-6,105),(x+14,72),(x+34,105),(x+14,94)],'#5e4bd7')
+            window_shape(img,x+7,122,14,18)
+        door_shape(img,116,154,28,42); window_shape(img,118,120,22,21)
+        img.ellipse(128,50,9,9,rgba('#8ff9ff',180),rgba('#ffffff',160),1)
+    else:
+        base_building_tile(img,'#6fdc62')
+        img.poly([(112,193),(144,193),(140,113),(116,113)],rgba('#8b562f'),rgba('#3b241b'),3)
+        for dx,dy,rx in [(-34,0,36),(0,-18,42),(36,0,36)]: img.ellipse(128+dx,104+dy,rx,35,rgba('#41c66a'),rgba('#21451f'),3)
+        diamond(img,(128,82),(178,111),(128,154),(78,111),'#f4b75d','#a6643d','#d58a4d','#3b241b')
+        roof_shape(img,[(76,102),(128,58),(180,102),(128,82)],'#ff8a36')
+        door_shape(img,116,116,23,30); window_shape(img,147,108,18,16)
+        img.line(104,164,80,194,rgba('#9b6338'),4); img.line(80,194,122,194,rgba('#9b6338'),4)
     return img
 
 def farm(level):
-    img=Img(); shadow(img,65,96,45,15)
-    if level==1:
-        diamond(img,(64,59),(104,78),(64,99),(24,78),'#b97540','#7b4a2b','#9d6338')
-        for x in [38,52,76,90]: img.rect(x,59,4,27,rgba('#8a4d28'),rgba('#4a2b1a'))
-    elif level==2:
-        img=farm(1); img.ellipse(54,68,8,6,rgba('#fff'),rgba('#333'),1); img.ellipse(77,70,8,6,rgba('#f6d59a'),rgba('#333'),1)
+    # Four farm silhouettes: barn, barn+silo, windmill farm, animal paddock.
+    img=Img(256,256); big_shadow(img)
+    if level == 1:
+        base_building_tile(img,'#c9a467')
+        diamond(img,(128,97),(204,137),(128,207),(52,137),'#d85848','#923e34','#c94b3f','#3b241b')
+        roof_shape(img,[(48,123),(128,56),(208,123),(128,90)],'#fff0d0')
+        img.rect(108,153,40,48,rgba('#6b3727'),rgba('#2e1912')); img.line(108,153,148,201,rgba('#f7cfae'),3); img.line(148,153,108,201,rgba('#f7cfae'),3)
+        window_shape(img,80,132,24,22); window_shape(img,154,132,24,22)
+        img.ellipse(48,184,18,12,rgba('#f0c85b'),rgba('#7a531f'),2); img.ellipse(202,181,15,11,rgba('#f0c85b'),rgba('#7a531f'),2)
+    elif level == 2:
+        base_building_tile(img,'#c69c5e')
+        diamond(img,(118,107),(190,140),(118,204),(46,140),'#c94a3f','#8f3a32','#bd4539','#3b241b')
+        roof_shape(img,[(42,127),(118,62),(194,127),(118,96)],'#f7e6c8')
+        img.rect(178,84,28,104,rgba('#d9e8e8'),rgba('#3d5555')); img.ellipse(192,84,14,10,rgba('#ffffff'),rgba('#3d5555'),2)
+        img.rect(94,154,38,44,rgba('#6b3727'),rgba('#2e1912')); window_shape(img,67,135,22,20)
+        for x in [40,58,216]: img.rect(x,158,7,40,rgba('#8b542b'),rgba('#3b241b'))
+        img.rect(35,171,188,6,rgba('#b97540'),rgba('#3b241b'))
+    elif level == 3:
+        base_building_tile(img,'#c9a15f')
+        diamond(img,(122,110),(190,143),(122,202),(54,143),'#e0a857','#9b6237','#c98545','#3b241b')
+        roof_shape(img,[(52,132),(122,75),(192,132),(122,103)],'#cc5845')
+        img.rect(177,86,8,93,rgba('#7a4a2a'),rgba('#3b241b'))
+        for a in range(4):
+            dx=math.cos(a*math.pi/2+0.78)*36; dy=math.sin(a*math.pi/2+0.78)*36
+            img.line(181,88,181+dx,88+dy,rgba('#fff0ca'),6)
+        img.ellipse(181,88,7,7,rgba('#b75b3e'),rgba('#3b241b'),2)
+        door_shape(img,103,154,34,42); window_shape(img,70,139,22,20)
     else:
-        diamond(img,(64,56),(104,75),(64,98),(24,75),'#c86f32','#8d4428','#ad5e2f')
-        img.poly([(30,61),(64,36),(98,61),(64,49)],rgba('#f6e8d0'),rgba('#4a2a25'),2)
-        img.rect(58,68,14,25,rgba('#6b3b26'),rgba('#21451f'))
-        if level==4:
-            img.ellipse(91,52,8,8,rgba('#ffe66d'),rgba('#21451f'),1); img.line(91,52,91,39,rgba('#8b5b35'),2)
+        base_building_tile(img,'#c8a66c')
+        diamond(img,(88,125),(158,160),(88,206),(18,160),'#b97642','#754428','#9d5d36','#3b241b')
+        roof_shape(img,[(16,151),(88,91),(160,151),(88,124)],'#df614d')
+        for x in [123,150,177,204]: img.rect(x,139,7,58,rgba('#8b542b'),rgba('#3b241b'))
+        img.rect(119,154,216-119,6,rgba('#b97540'),rgba('#3b241b')); img.rect(119,176,216-119,6,rgba('#b97540'),rgba('#3b241b'))
+        img.ellipse(166,170,17,11,rgba('#ffffff'),rgba('#333333'),2); img.ellipse(196,166,14,10,rgba('#f2c47d'),rgba('#333333'),2)
+        img.rect(76,160,27,38,rgba('#5f3421'),rgba('#2e1912'))
     return img
 
 def vegetable(level):
