@@ -1,6 +1,8 @@
+const DEFAULT_STARTING_COINS = 10000;
+
 window.AppFactory = {
   uid(prefix){ return prefix + '_' + Math.random().toString(36).slice(2,10); },
-  createUser(pseudo, codeHash){ return { id:this.uid('u'), pseudo, codeHash, avatar:'🌱', createdAt:new Date().toISOString(), coins:160, xp:0, habits:[{id:this.uid('h'),title:'Lire quelques pages',createdAt:new Date().toISOString(),completions:{},reward:10},{id:this.uid('h'),title:'Marcher 10 minutes',createdAt:new Date().toISOString(),completions:{},reward:10},{id:this.uid('h'),title:'Ranger un petit coin',createdAt:new Date().toISOString(),completions:{},reward:10}], inventory:{}, garden:Garden.createGarden(), social:{friends:[],requests:[]}, stats:{totalCompletions:0,bestStreak:0} }; }
+  createUser(pseudo, codeHash){ return { id:this.uid('u'), pseudo, codeHash, avatar:'🌱', createdAt:new Date().toISOString(), coins:DEFAULT_STARTING_COINS, xp:0, habits:[{id:this.uid('h'),title:'Lire quelques pages',createdAt:new Date().toISOString(),completions:{},reward:10},{id:this.uid('h'),title:'Marcher 10 minutes',createdAt:new Date().toISOString(),completions:{},reward:10},{id:this.uid('h'),title:'Ranger un petit coin',createdAt:new Date().toISOString(),completions:{},reward:10}], inventory:{}, garden:Garden.createGarden(), social:{friends:[],requests:[]}, stats:{totalCompletions:0,bestStreak:0} }; }
 };
 
 const App = (() => {
@@ -10,7 +12,7 @@ const App = (() => {
   const $=(id)=>document.getElementById(id);
   function defaultState(){ return {version:1,session:{currentUserId:null},users:{}}; }
   function load(){ try{ state=JSON.parse(localStorage.getItem(KEY))||defaultState(); }catch{ state=defaultState(); } Social.ensureBots(state); migrate(); save(); }
-  function migrate(){ Object.values(state.users).forEach(u=>{ u.inventory ||= {}; u.social ||= {friends:[],requests:[]}; u.stats ||= {totalCompletions:0,bestStreak:0}; u.garden = Garden.upgradeGarden(u.garden || Garden.createGarden()); }); }
+  function migrate(){ Object.values(state.users).forEach(u=>{ u.inventory ||= {}; u.social ||= {friends:[],requests:[]}; u.stats ||= {totalCompletions:0,bestStreak:0}; if(!u.isBot && (typeof u.coins !== 'number' || u.coins < DEFAULT_STARTING_COINS)) u.coins = DEFAULT_STARTING_COINS; u.garden = Garden.upgradeGarden(u.garden || Garden.createGarden()); }); }
   function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
   function user(){ return state.users[state.session.currentUserId]||null; }
   function level(u){ return Math.floor(Math.sqrt((u.xp||0)/100))+1; }
